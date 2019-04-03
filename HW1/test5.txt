@@ -1,0 +1,5 @@
+west
+world
+shop
+on
+lap
