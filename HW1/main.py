@@ -110,7 +110,7 @@ def compareDomain(Node1, Node2):
         return 1
     elif firstLen > secondLen:
         return -1
-    elif mode > 0:
+    elif firstLen == secondLen  and mode > 0:
         firstconstrainNum  = 0
         secondconstrainNum = 0
         for index,element in enumerate(Node1.alreadyAssign):
@@ -120,10 +120,10 @@ def compareDomain(Node1, Node2):
             if element2 == -1 and puzzleBoard.constraintMap[Node2.assignVarIndex][index2] != -1 :
                 secondconstrainNum = secondconstrainNum + 1
         
-        if firstconstrainNum > secondconstrainNum:
-            return 1
-        elif firstconstrainNum < secondconstrainNum:
+        if firstconstrainNum < secondconstrainNum:
             return -1
+        elif firstconstrainNum > secondconstrainNum:
+            return 1
         elif mode > 1:
             domain1 = copy.copy(Node1.domain)
             domain2 = copy.copy(Node2.domain)
@@ -159,7 +159,7 @@ def compareDomain(Node1, Node2):
                     for index2,element2 in enumerate(domain2[index]):
                         if wordDataFrame.at[element2,'words'][prohibitIndex] != doProhitbitWord:
                             delete_list.append(index2)
-                    domain1[index] = np.delete(domain2[index],delete_list)
+                    domain2[index] = np.delete(domain2[index],delete_list)
                 count2 = count2 + len(domain2[index])
             if count1 < count2:
                 return -1
@@ -238,7 +238,7 @@ def starTest(wordGroup):
             if expandNode.assignVarIndex is not None:
                 expandNode.set_domain()
                 expandNode.update_domain(puzzleBoard.constraintMap)
-                expandNodeNum = expandNodeNum + 1
+
     
             if expandNode.checkConsistency() == True:
                 #print(456)
@@ -267,12 +267,10 @@ def starTest(wordGroup):
             if expandNode.assignVarIndex is not None:
                 expandNode.set_domain()
                 expandNode.update_domain(puzzleBoard.constraintMap)
-                expandNodeNum = expandNodeNum + 1
     
             if expandNode.checkConsistency() == True:
                 child = genChild(expandNode)
             else:
-                print(expandNode.alreadyAssign)
                 if len(answer) == anserLimit:
                     break
                 continue
@@ -298,7 +296,6 @@ def starTest(wordGroup):
             if expandNode.assignVarIndex is not None:
                 expandNode.set_domain()
                 expandNode.update_domain(puzzleBoard.constraintMap)
-                expandNodeNum = expandNodeNum + 1
     
             if expandNode.checkConsistency() == True:
                 child = genChild(expandNode)
@@ -331,19 +328,19 @@ def main():
         wordDataFrame = pd.read_csv('./English-words-3000.txt',sep = "\n",names = ['words'])
         wordDataFrame = wordDataFrame.sample(frac=1).reset_index(drop=True) 
         wordGroup     = genWordGroup(wordDataFrame) 
-        puzzleBoard = puzzleInfo(3,wordGroup)
+        puzzleBoard = puzzleInfo(0,wordGroup)
         tmpList = []
-        for i in range(2,3):
+        for i in range(0,3):
             answer = []
             mode   = i
             print("mode: ",mode)
             path   = './ans' + str(i) + '.csv'
             expandNodeNum = starTest(wordGroup)
             tmpList.append(expandNodeNum)
-            df = pd.DataFrame(answer,columns=['0','1','2','3','4','5','6','7','8','9','10','11'])
+            df = pd.DataFrame(answer,columns=['0','1','2','3','4'])
             df.to_csv(path,sep = ',')
         testingSet.append(tmpList)
-    df = pd.DataFrame(testingSet,columns=['0'])
+    df = pd.DataFrame(testingSet,columns=['0','1','2','3','4'])
     df.to_csv('output.csv',sep=',')
     print(testingSet)  
 if __name__ == '__main__':
